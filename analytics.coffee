@@ -90,42 +90,7 @@ define ['jquery'], ($) ->
         root.insertBefore s, root.childNodes[0]
         return s
 
-    ######
-    #   TODO: Confirm that comscore is still required.
-    ######
-    csScript = do () ->
-        window._comscore = window._comscore or []
-        window._comscore.push c1: "2", c2: "3005368"
-        addScript "#{if isHTTPS then 'https://s' else 'http://'}b.scorecardresearch.com/beacon.js?"
-
-    # Gigya Google Analytics integration
-    gigyaIntScript = addScript "#{ if isHTTPS then 'https://cdns' else 'http://cdn'}.gigya.com/js/gigyaGAIntegration.js"
-
-
-    ######
-    #   TODO: Confirm that quantserve is still required.
-    ######
-    qcScript = do () ->
-        #only loads for http
-        if isHTTP
-            qs = addScript 'http://edge.quantserve.com/quant.js'
-            upon 'load', qs, () ->
-                if typeof window.quantserve is 'function'
-                   window._qacct = "p-c8v-iKfiW8tsY"
-                   window.quantserve()
-            return qs;
-
-
-    ######
-    #   TODO: Confirm that SiteCensus is still required.
-    ######
-    # Nielsen Online SiteCensus V6.0 | COPYRIGHT 2010 Nielsen Online
-    nielsen = do () ->
-        d = new Image 1, 1
-        d.onerror = d.onload = () ->
-            d.onerror = d.onload = null
-        d.src = "#{ document.location.protocol }//secure-us.imrworldwide.com/cgi-bin/m?ci=us-301776h&cg=0&cc=1&si=#{ window.escape window.location.href}&rp=#{ window.escape document.referrer }&ts=compact&rnd=#{(new Date()).getTime()}"
-        return d
+    
 
     settings =
         accountID: 'UA-28236326-1'
@@ -150,6 +115,10 @@ define ['jquery'], ($) ->
         ]
         trackFirstNSearchItems: 4
         videoEvents: ['canplay', 'playing', 'pause', 'progress', 'ended']
+        
+        # Granularity of when progress is reported can be adjusted here.
+        videoDurationMilestones: [0, 25, 50, 75, 100]
+        scrollMilestones: [30, 60, 90]
 
     init = (options) ->
 
@@ -207,10 +176,7 @@ define ['jquery'], ($) ->
         # and so membership event listeners are in place. Ideally these would be in the pre-_trackPageview
         # queue, but it's all asnyc, so w'll smoke 'em if we've got 'em. Otherwise we'll wait till it fires.
         ##################
-        # track ['_trackPageview']
         addScript "#{if isHTTPS then "https://ssl" else "http://www"}.google-analytics.com/ga.js"
-
-
 
         ##################
         # Log Link clicks
@@ -266,8 +232,7 @@ define ['jquery'], ($) ->
 
         lastReportedPlaybackPercent = -1
 
-        # Granularity of when progress is reported can be adjusted here.
-        playbackReportTimes = [0, 25, 50, 75, 100]
+        playbackReportTimes = settings.videoDurationMilestones
         lastPlaybackReportTime = playbackReportTimes[playbackReportTimes.length - 1]
         hasStarted = false
 
@@ -337,15 +302,9 @@ define ['jquery'], ($) ->
         windowHeight = () ->
             window.self.innerHeight or (root and root.clientHeight) or document.body.clientHeight
 
-        trackAt =
-            engagementA : 0.3
-            engagementB : 0.6
-            engagementC : 0.9
+        trackAt = settings.scrollMilestones.slice()
 
-        isTracked =
-            engagementA : false
-            engagementB : false
-            engagementC : false
+        isTracked = (false for idx in trackAt)
 
         upon 'scroll', window, () ->
 
@@ -356,10 +315,10 @@ define ['jquery'], ($) ->
             url           = page + search
 
             trackScroll = (engagement, mileMarker) ->
-                track ['_trackEvent', 'engagement', "scrolled past #{mileMarker * 100}", url]
+                track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
                 isTracked[engagement] = true
 
-            for engagement, distanceMark of trackAt
+            for engagement, distanceMark in trackAt
                 if not isTracked[engagement] and pxScroll > distanceMark
                     trackScroll engagement, distanceMark
 
@@ -369,7 +328,7 @@ define ['jquery'], ($) ->
         fireEngagementAfterSec = 20;
         url = window.location.pathname + window.location.search
         window.setTimeout () ->
-            track ['_trackEvent', 'engagement', 'Dwell time (more than ' + fireEngagementAfterSec + ' seconds)', url]
+            track ["_trackEvent", "engagement", "Dwell time (more than #{fireEngagementAfterSec} seconds)", url]
         , fireEngagementAfterSec * 1000
 
     accountID = () ->
