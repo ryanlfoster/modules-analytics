@@ -7,14 +7,17 @@
 #
 # options
 #----------
-#   accountID: String    // Override the default GA accountID for reporting. The current value of accountID can be
+#   accountID: String    // Override the default GA accountID for reporting.
+#                        // The current value of accountID can be
 #                        // obtained with analytics.accountID
 #
-#   natGeoDomains: Array // Add to the list of NatGeo domians that should be tracked as internal traffic.
-#                        // The current list of natGeoDomains can be obtained with analytics.internalTrafficDomains
+#   natGeoDomains: Array // Add to the list of NatGeo domians that should be tracked as
+#                        // internal traffic.
+#                        // The current list of natGeoDomains can be obtained with
+#                        // analytics.internalTrafficDomains
 #
-#   trackFirstNSearchItems: Number // A number representing the first N items to report a click event on for Google
-#                                  // Analytics reporting.
+#   trackFirstNSearchItems: Number // A number representing the first N items to report a
+#                                  // click event on for Google Analytics reporting.
 #
 #   videoEvents: Array  // An array of video events to track.
 #
@@ -42,8 +45,8 @@ siteName = window.location.siteName = window.location.siteName or (url) ->
     return hostName.join '.'
 
 if String.prototype.trim is undefined
-   String.prototype.trim = () ->
-       return this.replace(/^\s\s*/, '').replace /\s\s*$/, ''
+    String.prototype.trim = () ->
+        return this.replace(/^\s\s*/, '').replace /\s\s*$/, ''
 
 debug = !!window.location.search.match 'debug'
 log = (msg) ->
@@ -84,7 +87,7 @@ addScript = (src, cb, async) ->
     if typeof cb is 'function'
         upon 'load', s, cb
     s.src = src
-    s.async = if async is undefined then true else async;
+    s.async = if async is undefined then true else async
     root.insertBefore s, root.childNodes[0]
     return s
 
@@ -240,7 +243,7 @@ init = (options) ->
 
         trackStart = () ->
             track ['_trackEvent', 'video', 'Start', videoTitle]
-            hasStarted = true;
+            hasStarted = true
 
         if e.type isnt 'progress'
 
@@ -322,7 +325,7 @@ init = (options) ->
     ###################
     # Bounce modification
     ###################
-    fireEngagementAfterSec = 20;
+    fireEngagementAfterSec = 20
     url = window.location.pathname + window.location.search
     window.setTimeout () ->
         track ["_trackEvent", "engagement", "Dwell time (more than #{fireEngagementAfterSec} seconds)", url]

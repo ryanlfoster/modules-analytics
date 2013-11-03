@@ -1,0 +1,18 @@
+{
+  "name": "analytics",
+  "version": "1.0.0",
+  "homepage": "https://github.com/natgeo/modules-analytics",
+  "authors": [
+    "NGS"
+  ],
+  "main": "analytics.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
