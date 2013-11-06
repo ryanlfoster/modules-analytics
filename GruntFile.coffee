@@ -47,7 +47,8 @@ module.exports = (grunt) ->
                     level: 'warn'
 
 
-        # 
+        # this is here, well so we can compile the files into something 
+        # readable on the interwebs.
         coffee:
             compile:
                 files: [

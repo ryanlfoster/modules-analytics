@@ -64,21 +64,24 @@ isHTTPS = !!document.location.protocol.match 'https:'
 isHTTP = !!document.location.protocol.match 'http:'
 root = document.documentElement
 
+hasClass = (element, className) ->
+    return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test element.className
+
 upon = (type, selector, func) ->
     delegate = (evt) ->
         if selector.nodeName or selector is window or selector is document
-            els = [selector] 
-        else 
+            els = [selector]
+        else
             els = document.querySelectorAll selector
-        return func.call(evt.target, evt) for el in els when evt.currentTarget is el 
+        return func.call(evt.target, evt) for el in els when evt.currentTarget is el
 
     del = if selector isnt window then document else window
     if del.addEventListener
-        del.addEventListener type, (e) -> 
+        del.addEventListener type, (e) ->
             delegate(e)
         , false
     else if del.attachEvent
-        del.attachEvent 'on' + type, (e) -> 
+        del.attachEvent 'on' + type, (e) ->
         delegate(e)
 
 addScript = (src, cb, async) ->
@@ -114,7 +117,7 @@ settings =
     ]
     trackFirstNSearchItems: 4
     videoEvents: ['canplay', 'playing', 'pause', 'progress', 'ended']
-    
+
     # Granularity of when progress is reported can be adjusted here.
     videoDurationMilestones: [0, 25, 50, 75, 100]
     scrollMilestones: [30, 60, 90]
@@ -141,7 +144,7 @@ init = (options) ->
     track ['_setAllowLinker', true]
     track ['_addIgnoredRef', 'nationalgeographic']
 
-    $body = document.querySelectorAll "body"
+    $body = document.querySelector "body"
 
 
     ##################
@@ -190,104 +193,6 @@ init = (options) ->
         else
             track ['_trackEvent', 'engagement', 'outbound-click', targetA.title or siteName(targetA.href) ]
 
-    ###################
-    # Log Nav clicks
-    #
-    # (most) Nav Clicks will be reported as
-    # a standard link click and a nav click.
-    ##################
-    $body.on 'click', '.main-nav a, .global-nav a, .social-nav a, .main-nav button, .global-nav button, .social-nav button', (e) ->
-
-        $this = $(this)
-        $navType = $this.parents('.main-nav, .global-nav, .social-nav').eq(0)
-
-        # Determin which nav was clicked on
-        navType = do () ->
-            if $navType.hasClass 'social-nav'
-                'main-nav'
-            else if $navType.hasClass '.global-nav'
-                'global-nav'
-            else
-                'main-nav'
-
-        # Determin which text to report with
-        trackText = $this.text().trim()
-        trackText = $this.attr('title') if trackText is ''
-        trackText = $this.attr('id') if trackText is ''
-
-        ######
-        #   TODO:
-        #   Confirm reporting structure with Mia
-        #   https://docs.google.com/a/ngs.org/spreadsheet/ccc?key=0At8KEiOsNIXUdHd1M2J2Zy1NM2xoeDJ3dXBmdHBMRWc#gid=7
-        ######
-
-        track ['_trackEvent', 'ngm-nav', navType, trackText]
-
-    #################
-    # Video Events
-    # Requirements for video event tracking can be found here:
-    # https://docs.google.com/a/ngs.org/spreadsheet/ccc?key=0At8KEiOsNIXUdHd1M2J2Zy1NM2xoeDJ3dXBmdHBMRWc#gid=7
-    #################
-
-    lastReportedPlaybackPercent = -1
-
-    playbackReportTimes = settings.videoDurationMilestones
-    lastPlaybackReportTime = playbackReportTimes[playbackReportTimes.length - 1]
-    hasStarted = false
-
-    # Native video implemntation
-    $body.on settings.videoEvents.join(' '), 'video', (e) ->
-        trackAtTime = (time) ->
-            track ['_trackEvent', 'video', 'Progress', "Video complete #{time}%"]
-            lastReportedPlaybackPercent = time
-
-        trackStart = () ->
-            track ['_trackEvent', 'video', 'Start', videoTitle]
-            hasStarted = true
-
-        if e.type isnt 'progress'
-
-            # videoDuration = this
-            videoTitle = e.target.title
-
-            label = videoTitle
-
-            switch e.type
-                when e.type is 'playing' then type = 'Play'
-                when e.type is 'canplay' then type = 'Ready'
-                when e.type is 'ended'   then type = 'Complete'
-                else type = e.type
-
-            track ['_trackEvent', 'video', type, label]
-
-            # Captures the 100% senario that may not be captured by duration event.
-            trackAtTime lastPlaybackReportTime if e.type is 'ended' and lastReportedPlaybackPercent > lastPlaybackReportTime
-
-
-            trackStart() if e.type is 'play' and not hasStarted
-
-        else
-            duration = e.target.duration
-            currentTime = e.target.currentTime
-            percentViewed = currentTime / duration * 100
-
-            trackAtTime time for time in playbackReportTimes when percentViewed >= time and lastReportedPlaybackPercent < time
-
-    ###################
-    # Social Engagement
-    ###################
-    $body.on 'click', '.social-media-buttons a', (e) ->
-        service = e.target.title
-        service = 'twitter' if service is 'tweet'
-        track ['_trackEvent', 'social', 'outbound-click', service]
-
-
-    ###################
-    # Search Reporting
-    ###################
-    $body.on 'click', ".search_results:nth-child(-n+#{settings.trackFirstNSearchItems}) a", (e) ->
-        itemNumber = $(this).index() + 1
-        track ['_trackEvent', 'click', "Search-NGM_#{itemNumber}"]
 
     ###################
     # Scroll Tracking
@@ -340,20 +245,16 @@ internalTrafficDomains = () ->
 ######
 #   The analytics API.
 #   Here be public methods.
-######  
+######
 class window.Analytics
-
-    constructor: (options) ->
-        
-        { @name, @accountID } = options
-        init()
-
-    accountID: accountID # Returns what accountID is being used.
+    # accountID: accountID # Returns what accountID is being used.
     track: ->
         track arguments[0].splice 1, "#{@name}.#{arguments[0]}"
     upon: upon
     internalTrafficDomains: internalTrafficDomains
     videoEvents: [].slice.call settings.videoEvents
 
-window.analytics = new Analytics 
-    name: 'cory'
+    constructor: (options = {}) ->
+        @name = options.name ? ''
+        @accountID = options.accountID ? settings.accountID
+        init(options)
