@@ -32,3 +32,6 @@ A number representing the first N items to report a click event on for Google An
 Type: `Array`
 
 An array of video events to track.
+
+# DEV:
+If you would like to contribute to this module, please do! You'll find our roadmap within the issues section...
