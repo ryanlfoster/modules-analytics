@@ -260,7 +260,6 @@ internalTrafficDomains = () ->
 #   Here be public methods.
 ######
 class Analytics
-    # accountID: accountID # Returns what accountID is being used.
     track: track
     upon: upon
     internalTrafficDomains: internalTrafficDomains
@@ -268,7 +267,7 @@ class Analytics
 
     constructor: (options = {}) ->
         @name = options.name ? ''
-        @accountID = options.accountID ? settings.accountID
-        init()
+        init(options)
+        @settings = settings
 
 window.Analytics = Analytics
