@@ -9,7 +9,7 @@ This will require [NodeJS](http://nodejs.org), [Grunt](http://gruntjs.com/gettin
 ```javascript
 require 'analytics', () ->
     options = {...}
-    analytics.init(options)
+    window.analytics = new Analytics(options)
 ```
 
 ## Options

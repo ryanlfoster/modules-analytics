@@ -3,7 +3,7 @@
 # USAGE:
 # require 'analytics', () ->
 #    options = {...}
-#    analytics.init(options)
+#    window.analytics = new Analytics(options)
 #
 # options
 #----------
@@ -144,8 +144,6 @@ init = (options) ->
     track ['_setAllowLinker', true]
     track ['_addIgnoredRef', 'nationalgeographic']
 
-    $body = document.querySelector "body"
-
 
     ##################
     # Membership status
@@ -193,6 +191,21 @@ init = (options) ->
         else
             track ['_trackEvent', 'engagement', 'outbound-click', targetA.title or siteName(targetA.href) ]
 
+    #################
+    # Video Events
+    # Requirements for video event tracking can be found here:
+    # https://docs.google.com/a/ngs.org/spreadsheet/ccc?key=0At8KEiOsNIXUdHd1M2J2Zy1NM2xoeDJ3dXBmdHBMRWc#gid=7
+    #################
+
+    lastReportedPlaybackPercent = -1
+
+    playbackReportTimes = settings.videoDurationMilestones
+    lastPlaybackReportTime = playbackReportTimes[playbackReportTimes.length - 1]
+    hasStarted = false
+
+    ## TODO 
+    # add generic tracking events back in
+    # #
 
     ###################
     # Scroll Tracking
@@ -246,15 +259,16 @@ internalTrafficDomains = () ->
 #   The analytics API.
 #   Here be public methods.
 ######
-class window.Analytics
+class Analytics
     # accountID: accountID # Returns what accountID is being used.
-    track: ->
-        track arguments[0].splice 1, "#{@name}.#{arguments[0]}"
+    track: track
     upon: upon
     internalTrafficDomains: internalTrafficDomains
     videoEvents: [].slice.call settings.videoEvents
 
     constructor: (options = {}) ->
         @name = options.name ? ''
-        @accountID = options.accountID ? settings.accountID
-        init(options)
+        @accountID = options.accountID ? settings.a
+        init()
+
+window.Analytics = Analytics
