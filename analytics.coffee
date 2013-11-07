@@ -268,7 +268,7 @@ class Analytics
 
     constructor: (options = {}) ->
         @name = options.name ? ''
-        @accountID = options.accountID ? settings.a
+        @accountID = options.accountID ? settings.accountID
         init()
 
 window.Analytics = Analytics
