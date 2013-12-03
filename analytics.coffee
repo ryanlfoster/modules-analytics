@@ -48,7 +48,7 @@ if String.prototype.trim is undefined
     String.prototype.trim = () ->
         return this.replace(/^\s\s*/, '').replace /\s\s*$/, ''
 
-debug = !!window.location.search.match 'debug'
+debug = true #!!window.location.search.match 'debug'
 log = (msg) ->
     if debug
         if window.console && window.console.log
@@ -68,21 +68,22 @@ hasClass = (element, className) ->
     return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test element.className
 
 upon = (type, selector, func) ->
-    delegate = (evt) ->
-        if selector.nodeName or selector is window or selector is document
-            els = [selector]
-        else
-            els = document.querySelectorAll selector
-        return func.call(evt.target, evt) for el in els when evt.currentTarget is el
+    if selector is window
+        del = [window]
+    else if selector is document
+        del = [document]
+    else 
+        del = document.querySelectorAll selector
 
-    del = if selector isnt window then document else window
-    if del.addEventListener
-        del.addEventListener type, (e) ->
+    for sel in del 
+        console.log sel
+        if sel.addEventListener
+            sel.addEventListener type, (e) ->
+                func.call(e.target, e)
+            , false
+        else if del.attachEvent
+            sel.attachEvent 'on' + type, (e) ->
             delegate(e)
-        , false
-    else if del.attachEvent
-        del.attachEvent 'on' + type, (e) ->
-        delegate(e)
 
 addScript = (src, cb, async) ->
     root = document.documentElement
