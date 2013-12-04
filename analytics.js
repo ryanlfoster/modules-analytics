@@ -1,5 +1,5 @@
 (function() {
-  var Analytics, accountID, addScript, debug, hasClass, init, internalTrafficDomains, isHTTP, isHTTPS, log, root, settings, siteName, track, upon,
+  var Analytics, accountID, addScript, debug, hasClass, init, internalTrafficDomains, isHTTP, isHTTPS, log, root, settings, siteName, track, trackHashChange, upon,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   siteName = window.location.siteName = window.location.siteName || function(url) {
@@ -60,19 +60,27 @@
     _results = [];
     for (_i = 0, _len = del.length; _i < _len; _i++) {
       sel = del[_i];
-      console.log(sel);
       if (sel.addEventListener) {
         _results.push(sel.addEventListener(type, function(e) {
           return func.call(e.target, e);
         }, false));
       } else if (del.attachEvent) {
-        sel.attachEvent('on' + type, function(e) {});
-        _results.push(delegate(e));
+        _results.push(sel.attachEvent('on' + type, function(e) {
+          return func.call(e.target, e);
+        }));
       } else {
         _results.push(void 0);
       }
     }
     return _results;
+  };
+
+  trackHashChange = function(hash, func) {
+    return window.addEventListener('hashchange', function(e) {
+      if (location.hash === hash) {
+        return func.call(e.target, e);
+      }
+    });
   };
 
   addScript = function(src, cb, async) {
@@ -218,6 +226,8 @@
     Analytics.prototype.internalTrafficDomains = internalTrafficDomains;
 
     Analytics.prototype.videoEvents = [].slice.call(settings.videoEvents);
+
+    Analytics.prototype.trackHashChange = trackHashChange;
 
     function Analytics(options) {
       var _ref;

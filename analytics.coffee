@@ -76,14 +76,18 @@ upon = (type, selector, func) ->
         del = document.querySelectorAll selector
 
     for sel in del 
-        console.log sel
         if sel.addEventListener
             sel.addEventListener type, (e) ->
                 func.call(e.target, e)
             , false
         else if del.attachEvent
             sel.attachEvent 'on' + type, (e) ->
-            delegate(e)
+                func.call(e.target, e)
+
+trackHashChange = (hash, func) ->
+    window.addEventListener 'hashchange', (e) ->
+        if location.hash is hash
+            func.call(e.target, e)
 
 addScript = (src, cb, async) ->
     root = document.documentElement
@@ -265,6 +269,7 @@ class Analytics
     upon: upon
     internalTrafficDomains: internalTrafficDomains
     videoEvents: [].slice.call settings.videoEvents
+    trackHashChange: trackHashChange
 
     constructor: (options = {}) ->
         @name = options.name ? ''
