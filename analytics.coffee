@@ -48,7 +48,7 @@ if String.prototype.trim is undefined
     String.prototype.trim = () ->
         return this.replace(/^\s\s*/, '').replace /\s\s*$/, ''
 
-debug = true #!!window.location.search.match 'debug'
+debug = !!window.location.search.match 'debug'
 log = (msg) ->
     if debug
         if window.console && window.console.log
@@ -85,9 +85,14 @@ upon = (type, selector, func) ->
                 func.call(e.target, e)
 
 trackHashChange = (hash, func) ->
-    window.addEventListener 'hashchange', (e) ->
-        if location.hash is hash
-            func.call(e.target, e)
+    if window.addEventListener
+        window.addEventListener 'hashchange', (e) ->
+            if location.hash is hash
+                func.call(e.target, e)
+    else if window.attachEvent
+        window.attachEvent 'on' + type, (e) ->
+            if location.hash is hash
+                func.call(e.target, e)
 
 addScript = (src, cb, async) ->
     root = document.documentElement
