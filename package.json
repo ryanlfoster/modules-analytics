@@ -1,6 +1,6 @@
 {
   "name": "analytics",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Module for setting up Analytics on NGS projects",
   "main": "analytics.js",
   "scripts": {
