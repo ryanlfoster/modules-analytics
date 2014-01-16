@@ -73,7 +73,10 @@ upon = (type, selector, func) ->
     else if selector is document
         del = [document]
     else 
-        del = document.querySelectorAll selector
+        try
+            del = document.querySelectorAll selector
+        catch e
+            del = ''
 
     for sel in del 
         if sel.addEventListener
