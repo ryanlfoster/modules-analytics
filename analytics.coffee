@@ -245,8 +245,9 @@ init = (options) ->
         url           = page + search
 
         trackScroll = (engagement, mileMarker) ->
-            track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
-            isTracked[engagement] = true
+            unless $("body").attr("data-lazy")
+                track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
+                isTracked[engagement] = true
 
         for engagement, distanceMark in trackAt
             if not isTracked[distanceMark] and pxScroll > engagement
