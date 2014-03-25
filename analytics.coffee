@@ -245,7 +245,7 @@ init = (options) ->
         url           = page + search
 
         trackScroll = (engagement, mileMarker) ->
-            unless $("body").attr("data-lazy")
+            unless document.querySelector("body[data-lazy]")?
                 track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
                 isTracked[engagement] = true
 
