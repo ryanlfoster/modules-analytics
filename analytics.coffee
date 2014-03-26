@@ -245,7 +245,7 @@ init = (options) ->
         url           = page + search
 
         trackScroll = (engagement, mileMarker) ->
-            track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
+            track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url, true]
             isTracked[engagement] = true
 
         for engagement, distanceMark in trackAt
@@ -259,7 +259,7 @@ init = (options) ->
     fireEngagementAfterSec = 20
     url = window.location.pathname + window.location.search
     window.setTimeout () ->
-        track ["_trackEvent", "engagement", "Dwell time (more than #{fireEngagementAfterSec} seconds)", url]
+        track ["_trackEvent", "engagement", "Dwell time (more than #{fireEngagementAfterSec} seconds)", url, true]
     , fireEngagementAfterSec * 1000
 
 accountID = () ->
