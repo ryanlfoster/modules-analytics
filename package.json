@@ -1,8 +1,8 @@
 {
   "name": "analytics",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Module for setting up Analytics on NGS projects",
-  "main": "analytics.js",
+  "main": "analytics.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
