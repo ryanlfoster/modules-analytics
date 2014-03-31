@@ -184,6 +184,14 @@ init = (options) ->
             context.onUserLoggedOut () ->
                 track ['_trackEvent', 'Membership', 'General', 'Log Out']
 
+    #adding Enhanced Link Attribution
+    pluginUrl = "//www.google-analytics.com/plugins/ga/inpage_linkid.js"
+    window._gaq.push [
+      "_require"
+      "inpage_linkid"
+      pluginUrl
+    ]
+    
     ##################
     # Load the GA script now so that setup items like _setAccount, etc. are in the queue
     # and so membership event listeners are in place. Ideally these would be in the pre-_trackPageview
