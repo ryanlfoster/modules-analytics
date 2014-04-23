@@ -54,7 +54,18 @@ log = (msg) ->
         if window.console && window.console.log
             window.console.log msg
 track = (item) ->
-    window._gaq.push item
+    # Track the event in GTM if exists
+    if window.dataLayer? and item.length > 3
+        item_gtm = 
+            event: item[2] 
+            pageCategory: item[1]
+            pageSubCategory: item[3] # label
+        window.dataLayer.push item_gtm
+    
+    # Track the event in Analytics
+    if window._gaq?
+        window._gaq.push item
+        
     log item
 
 track.help = "Usage: track(['_trackEvent', category, action, opt_label, opt_value, opt_noninteraction])"
