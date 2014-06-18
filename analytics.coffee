@@ -127,6 +127,7 @@ settings =
         'natgeotakeaction.org'
         'customersvc.com'
         'killinglincolnconspiracy.com'
+        'rulethe90s.com'
     ]
     trackFirstNSearchItems: 4
     videoEvents: ['canplay', 'playing', 'pause', 'progress', 'ended']
