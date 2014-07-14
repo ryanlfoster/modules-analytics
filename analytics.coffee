@@ -228,49 +228,6 @@ init = (options) ->
     # add generic tracking events back in
     # #
 
-    ###################
-    # Scroll Tracking
-    ###################
-    scrollY = () ->
-        window.self.pageYOffset or (root and root.scrollTop) or document.body.scrollTop
-
-    pageHeight = () ->
-        document.body.scrollHeight
-
-    windowHeight = () ->
-        window.self.innerHeight or (root and root.clientHeight) or document.body.clientHeight
-
-    trackAt = settings.scrollMilestones.slice()
-
-    isTracked = (false for idx in trackAt)
-
-    upon 'scroll', window, (e) ->
-
-        percentScroll = (scrollY() + windowHeight())/pageHeight()
-        pxScroll      = scrollY()
-        page          = window.location.pathname
-        search        = window.location.search
-        url           = page + search
-
-        trackScroll = (engagement, mileMarker) ->
-            unless document.querySelector("body[data-lazy]")?
-                track ["_trackEvent", "engagement", "scrolled past #{mileMarker}", url]
-                isTracked[engagement] = true
-
-        for engagement, distanceMark in trackAt
-            if not isTracked[distanceMark] and pxScroll > engagement
-                trackScroll distanceMark, engagement
-
-
-    ###################
-    # Bounce modification
-    ###################
-    fireEngagementAfterSec = 20
-    url = window.location.pathname + window.location.search
-    window.setTimeout () ->
-        track ["_trackEvent", "engagement", "Dwell time (more than #{fireEngagementAfterSec} seconds)", url]
-    , fireEngagementAfterSec * 1000
-
 accountID = () ->
     return settings.accountID
 
