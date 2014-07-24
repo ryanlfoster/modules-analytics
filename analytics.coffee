@@ -72,13 +72,13 @@ upon = (type, selector, func) ->
         del = [window]
     else if selector is document
         del = [document]
-    else 
+    else
         try
             del = document.querySelectorAll selector
         catch e
             del = ''
 
-    for sel in del 
+    for sel in del
         if sel.addEventListener
             sel.addEventListener type, (e) ->
                 func.call(e.target, e)
@@ -191,13 +191,14 @@ init = (options) ->
       "inpage_linkid"
       pluginUrl
     ]
-    
+
     ##################
     # Load the GA script now so that setup items like _setAccount, etc. are in the queue
     # and so membership event listeners are in place. Ideally these would be in the pre-_trackPageview
-    # queue, but it's all asnyc, so w'll smoke 'em if we've got 'em. Otherwise we'll wait till it fires.
+    # queue, but it's all asnyc. Otherwise we'll wait till it fires.
     ##################
-    addScript "#{if isHTTPS then "https://ssl" else "http://www"}.google-analytics.com/ga.js"
+    sLoaded = (typeof window.ga !== "undefined" && window.ga !== null)
+    if !sLoaded then addScript "#{if isHTTPS then "https://ssl" else "http://www"}.google-analytics.com/ga.js"
 
     ##################
     # Log Link clicks
@@ -224,7 +225,7 @@ init = (options) ->
     lastPlaybackReportTime = playbackReportTimes[playbackReportTimes.length - 1]
     hasStarted = false
 
-    ## TODO 
+    ## TODO
     # add generic tracking events back in
     # #
 
