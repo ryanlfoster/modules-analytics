@@ -16,7 +16,7 @@ module.exports = (grunt) ->
                         ' * Copyright (c) <%= grunt.template.today("yyyy") %>' +
                         '  | <%= pkg.author.name %>;\n' +
                         '**/\n'
-        
+
         # basic watch tasks first for development
         watch:
             coffee:
@@ -43,11 +43,11 @@ module.exports = (grunt) ->
                 'no_trailing_whitespace':
                     level: 'ignore'
                 'max_line_length':
-                    velue: 120
+                    velue: 180
                     level: 'warn'
 
 
-        # this is here, well so we can compile the files into something 
+        # this is here, well so we can compile the files into something
         # readable on the interwebs.
         coffee:
             compile:
@@ -56,7 +56,7 @@ module.exports = (grunt) ->
                     cwd: ''
                     src: ['<%= pkg.name %>.coffee']
                     dest: ''
-                    # we need this rename function in case files are named 
+                    # we need this rename function in case files are named
                     # with dot notation. e.g., ngm.module.coffee
                     rename: (destBase, destPath) ->
                         destBase + destPath.replace(/\.coffee$/, '.js')
@@ -72,9 +72,9 @@ module.exports = (grunt) ->
                     '<%= pkg.name %>.min.js': '<%= pkg.name %>.js'
 
         ## TODO: we need to add tests to start in all modules
-        # prefered to start with Jasmine                    
-    
- 
+        # prefered to start with Jasmine
+
+
     grunt.registerTask 'default', [
         'clean'
         'coffeelint'

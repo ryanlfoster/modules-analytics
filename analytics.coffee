@@ -11,13 +11,17 @@
 #                        // The current value of accountID can be
 #                        // obtained with analytics.accountID
 #
-#   natGeoDomains: Array // Add to the list of NatGeo domians that should be tracked as
-#                        // internal traffic.
-#                        // The current list of natGeoDomains can be obtained with
-#                        // analytics.internalTrafficDomains
+#   version: String      // Can be classic, universal or both
+#                        // Used to set the support level for GA versions
 #
-#   trackFirstNSearchItems: Number // A number representing the first N items to report a
-#                                  // click event on for Google Analytics reporting.
+#   natGeoDomains: Array // Add to the list of NatGeo domians that should be
+#                        // tracked as internal traffic.
+#                        // The current list of natGeoDomains can be obtained
+#                        // with analytics.internalTrafficDomains
+#
+#   trackFirstNSearchItems: Number // A number representing the first N items
+#                                  // to report a click event on for Google
+#                                  // Analytics reporting.
 #
 #   videoEvents: Array  // An array of video events to track.
 #
@@ -31,6 +35,41 @@
 # mysubdomain.mywebsite.co.uk would return mywebsite.co.uk.
 #
 ############
+
+settings =
+    accountID: 'UA-28236326-1'
+    version: 'classic'
+
+    ######
+    #   A hardcoded list of NatGeo domains hardly seems like
+    #   the best way to go here.
+    ######
+    natGeoDomains: [ # to track inter-society vs outer-society links correctly
+        'nationalgeographicexpeditions.com'
+        'scienceblogs.com'
+        'buysub.com'
+        'ngtravelerseminars.com'
+        'greatenergychallengeblog.com'
+        '360energydiet.com'
+        'nationalgeographic.org'
+        'nationalgeographic.com'
+        'ngstudentexpeditions.com'
+        'natgeotakeaction.org'
+        'customersvc.com'
+        'killinglincolnconspiracy.com'
+    ]
+    trackFirstNSearchItems: 4
+    videoEvents: ['canplay', 'playing', 'pause', 'progress', 'ended']
+
+    # Granularity of when progress is reported can be adjusted here.
+    videoDurationMilestones: [0, 25, 50, 75, 100]
+    scrollMilestones: [30, 60, 90]
+
+# Utilities
+isClassic = version is 'classic'
+isHTTPS = !!document.location.protocol.match 'https:'
+isHTTP = !!document.location.protocol.match 'http:'
+root = document.documentElement
 siteName = window.location.siteName = window.location.siteName or (url) ->
     hostName = url or window.location.hostname
 
@@ -44,25 +83,23 @@ siteName = window.location.siteName = window.location.siteName or (url) ->
     hostName.shift() while hostName.length > hostNamePosFromEnd
     return hostName.join '.'
 
-if String.prototype.trim is undefined
-    String.prototype.trim = () ->
-        return this.replace(/^\s\s*/, '').replace /\s\s*$/, ''
-
 debug = !!window.location.search.match 'debug'
+
 log = (msg) ->
     if debug
         if window.console && window.console.log
             window.console.log msg
+
 track = (item) ->
-    window._gaq.push item
+    if isClassic
+        window._gaq.push item
+        log item
+        return
+
+    window.ga item
     log item
 
-track.help = "Usage: track(['_trackEvent', category, action, opt_label, opt_value, opt_noninteraction])"
-
-# Utilities
-isHTTPS = !!document.location.protocol.match 'https:'
-isHTTP = !!document.location.protocol.match 'http:'
-root = document.documentElement
+# track.help = "Usage: track(['_trackEvent', category, action, opt_label, opt_value, opt_noninteraction])"
 
 hasClass = (element, className) ->
     return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test element.className
@@ -72,13 +109,13 @@ upon = (type, selector, func) ->
         del = [window]
     else if selector is document
         del = [document]
-    else 
+    else
         try
             del = document.querySelectorAll selector
         catch e
             del = ''
 
-    for sel in del 
+    for sel in del
         if sel.addEventListener
             sel.addEventListener type, (e) ->
                 func.call(e.target, e)
@@ -107,34 +144,6 @@ addScript = (src, cb, async) ->
     root.insertBefore s, root.childNodes[0]
     return s
 
-settings =
-    accountID: 'UA-28236326-1'
-
-    ######
-    #   A hardcoded list of NatGeo domains hardly seems like the best way to go here.
-    #   Still, the list can be
-    ######
-    natGeoDomains: [ # to track inter-society vs outer-society links correctly
-        'nationalgeographicexpeditions.com'
-        'scienceblogs.com'
-        'buysub.com'
-        'ngtravelerseminars.com'
-        'greatenergychallengeblog.com'
-        '360energydiet.com'
-        'nationalgeographic.org'
-        'nationalgeographic.com'
-        'ngstudentexpeditions.com'
-        'natgeotakeaction.org'
-        'customersvc.com'
-        'killinglincolnconspiracy.com'
-    ]
-    trackFirstNSearchItems: 4
-    videoEvents: ['canplay', 'playing', 'pause', 'progress', 'ended']
-
-    # Granularity of when progress is reported can be adjusted here.
-    videoDurationMilestones: [0, 25, 50, 75, 100]
-    scrollMilestones: [30, 60, 90]
-
 init = (options) ->
 
     # Extend settings
@@ -151,11 +160,15 @@ init = (options) ->
             settings[key] = options[key]
 
     # Google Analytics Custom Implimentation
-    window._gaq = window._gaq or []
-    track ['_setAccount', settings.accountID]
-    track ['_setDomainName', siteName()]
-    track ['_setAllowLinker', true]
-    track ['_addIgnoredRef', 'nationalgeographic']
+    if isClassic
+        window._gaq = window._gaq or []
+        track ['_setAccount', settings.accountID]
+        track ['_setDomainName', siteName()]
+        track ['_setAllowLinker', true]
+        track ['_addIgnoredRef', 'nationalgeographic']
+    else
+        window.ga = window.ga or []
+        window.ga 'create', settings.accoundID
 
 
     ##################
@@ -164,40 +177,53 @@ init = (options) ->
     onMMDBHeaderLoaded? (context) ->
         context.isLoggedIn().done (authenticated) ->
             if authenticated
-
                 user = context.getUser()
                 memberLevel = user.attributes.memberLevel
                 userToken = user.attributes.userHash
-
-                track ['_setCustomVar', 3, 'isLoged', 'true', 3]
-                track ['_setCustomVar', 8, 'userToken', userToken, 3]
-                track ['_setCustomVar', 9, 'memberLevel', memberLevel, 3]
+                # https://developers.google.com/analytics/devguides/collection/upgrade/reference/gajs-analyticsjs#custom-vars
+                # custom vars in Universal are now done in Admin and referrenced here as dimensions
+                # e.g., ga('set', 'dimension1', 'isLoged');
+                # therefore are not an option here yet
+                if isClassic
+                    track ['_setCustomVar', 3, 'isLoged', 'true', 3]
+                    track ['_setCustomVar', 8, 'userToken', userToken, 3]
+                    track ['_setCustomVar', 9, 'memberLevel', memberLevel, 3]
             else
-                track ['_setCustomVar', 3, 'isLoged', 'false', 3]
+                if isClassic then track ['_setCustomVar', 3, 'isLoged', 'false', 3]
 
             # Login/out events
             ##################
-
+            memVars = [ 'Membership', 'General' ].join ','
             context.onUserLoggedIn () ->
-                track ['_trackEvent', 'Membership', 'General', 'Sign In']
+                if isClassic
+                    track ['_trackEvent', memVars, 'Sign In']
+                else
+                    track 'send', 'event', memVars, 'Sign In'
 
             context.onUserLoggedOut () ->
-                track ['_trackEvent', 'Membership', 'General', 'Log Out']
+                if isClassic
+                    track ['_trackEvent', memVars, 'Log Out']
+                else
+                    track 'send', 'event', memVars, 'Log Out'
 
     #adding Enhanced Link Attribution
     pluginUrl = "//www.google-analytics.com/plugins/ga/inpage_linkid.js"
-    window._gaq.push [
-      "_require"
-      "inpage_linkid"
-      pluginUrl
-    ]
-    
+    if isClassic
+        window._gaq.push [
+          "_require"
+          "inpage_linkid"
+          pluginUrl
+        ]
+    else
+        ga 'require', 'inpage_linkid', 'inpage_linkid.js'
+
     ##################
     # Load the GA script now so that setup items like _setAccount, etc. are in the queue
     # and so membership event listeners are in place. Ideally these would be in the pre-_trackPageview
-    # queue, but it's all asnyc, so w'll smoke 'em if we've got 'em. Otherwise we'll wait till it fires.
+    # queue, but it's all asnyc. Otherwise we'll wait till it fires.
     ##################
-    addScript "#{if isHTTPS then "https://ssl" else "http://www"}.google-analytics.com/ga.js"
+    if isClassic and (typeof window._gaq is "undefined" and window._gaq is null)
+        addScript "#{if isHTTPS then "https://ssl" else "http://www"}.google-analytics.com/ga.js"
 
     ##################
     # Log Link clicks
@@ -210,7 +236,11 @@ init = (options) ->
             track ['_link', targetA.href]
         # Third Party TLDs
         else
-            track ['_trackEvent', 'engagement', 'outbound-click', targetA.title or siteName(targetA.href) ]
+            link = targetA.title or siteName(targetA.href)
+            if isClassic
+                track ['_trackEvent', 'engagement', 'outbound-click', link ]
+            else
+                track 'send', 'event', 'engagement', 'outboard-click', link
 
     #################
     # Video Events
@@ -224,9 +254,6 @@ init = (options) ->
     lastPlaybackReportTime = playbackReportTimes[playbackReportTimes.length - 1]
     hasStarted = false
 
-    ## TODO 
-    # add generic tracking events back in
-    # #
 
 accountID = () ->
     return settings.accountID
