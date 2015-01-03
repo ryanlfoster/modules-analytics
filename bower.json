@@ -2,11 +2,11 @@
   "name": "analytics",
   "version": "1.0.2",
   "homepage": "https://github.com/natgeo/modules-analytics",
-  "authors": [
-    "NGS"
-  ],
-  "main": "analytics.js",
-  "license": "MIT",
+  "author": {
+      "name": "National Geographic Society Technology",
+      "email": "appdev@ngs.org"
+  },
+  "main": "analytics.min.js",
   "private": true,
   "ignore": [
     "**/.*",
