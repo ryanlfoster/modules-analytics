@@ -1,0 +1,17 @@
+default:
+  - 'build'
+
+build:
+  - 'clean'
+  - 'coffeelint'
+  - 'coffee:compile'
+  - 'uglify'
+  - 'clean'
+
+dev:
+  - 'clean'
+  # - 'coffeelint'
+  # - 'karma:unit'
+  - 'coffee:compile'
+  - 'browserSync:serve'
+  - 'watch'

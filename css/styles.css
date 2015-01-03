@@ -1,0 +1,44 @@
+body {
+    margin: 0px;
+}
+
+#content {
+    max-width: 750px;
+    margin: 0 auto;
+    font-size: x-large;
+}
+
+#column {
+    width: 350px;
+}
+
+.playerDiv,video,iframe {
+    width: 100%;
+}
+
+.textual {
+}
+.player {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    /*height: 0;*/
+}
+
+.inline {
+   position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    height: 0;
+}
+
+.inline iframe {
+    position: absolute;
+    padding-bottom: 56.25%;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+#midTextualPlayer {
+   max-width: 750px;
+}
