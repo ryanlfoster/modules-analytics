@@ -207,7 +207,7 @@ init = (options) ->
 
         # NatGeo TLDs
         if siteName(targetA.href) in settings.natGeoDomains
-            track ['_link', targetA.href]
+            track ['_trackEvent', 'engagement', 'natgeo-domains-click', targetA.title or siteName(targetA.href) ]
         # Third Party TLDs
         else
             track ['_trackEvent', 'engagement', 'outbound-click', targetA.title or siteName(targetA.href) ]
